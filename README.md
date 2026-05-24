@@ -24,6 +24,16 @@ AI-powered chatbot that answers website questions using a local SLM (Small Langu
 - **100% Open Source**: MIT licensed, no cloud dependencies
 - **Privacy-First**: All data stays on customer's server
 
+## Screenshots
+
+| Setup Wizard | Chat Widget | Admin Panel |
+|---|---|---|
+| ![Setup Wizard](screenshots/wizard.png) | ![Chat Widget](screenshots/widget.png) | ![Admin Panel](screenshots/admin.png) |
+
+| Chat Interface | Widget Config | System Health |
+|---|---|---|
+| ![Chat Interface](screenshots/chat.png) | ![Widget Config](screenshots/widget-config.png) | ![System Health](screenshots/health.png) |
+
 ## Quick Start
 
 ### Prerequisites
