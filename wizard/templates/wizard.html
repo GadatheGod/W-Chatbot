@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAI Chat Setup Wizard</title>
+    <link rel="stylesheet" href="/static/wizard.css">
+</head>
+<body>
+    <div class="wizard-container">
+        <!-- Branding Header -->
+        <div class="wizard-branding">
+            <h1>WebAI Chat</h1>
+            <p>Intelligent Website Assistant Setup</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-steps" id="progressSteps"></div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-label" id="progressLabel">Step 1 of 10</div>
+        </div>
+
+        <!-- Wizard Content -->
+        <div class="wizard-content">
+            <!-- Step 1: System Check -->
+            <div class="wizard-step active" id="step1">
+                <h2>System Check</h2>
+                <div class="step-description">Analyzing your system to ensure everything is ready for WebAI Chat.</div>
+                <div id="systemInfo" class="info-grid"></div>
+                <div id="systemWarnings" class="warnings"></div>
+            </div>
+
+            <!-- Step 2: Deployment Mode -->
+            <div class="wizard-step" id="step2">
+                <h2>Deployment Mode</h2>
+                <div class="step-description">Choose how you want WebAI Chat to handle AI responses.</div>
+                <div class="mode-cards" id="modeCards">
+                    <div class="mode-card" data-mode="local" onclick="selectMode('local')">
+                        <div class="mode-icon">🖥️</div>
+                        <h3>Local</h3>
+                        <p>Runs entirely on your server using Ollama. No internet needed for AI responses.</p>
+                        <ul>
+                            <li>100% data privacy</li>
+                            <li>No API costs</li>
+                            <li>Works offline</li>
+                            <li>Requires GPU (optional)</li>
+                        </ul>
+                    </div>
+                    <div class="mode-card" data-mode="cloud" onclick="selectMode('cloud')">
+                        <div class="mode-icon">☁️</div>
+                        <h3>Cloud</h3>
+                        <p>Uses cloud APIs like OpenAI, Anthropic, Google. Best quality, requires API key.</p>
+                        <ul>
+                            <li>Best model quality</li>
+                            <li>No GPU needed</li>
+                            <li>Fast responses</li>
+                            <li>Per-token costs</li>
+                        </ul>
+                    </div>
+                    <div class="mode-card" data-mode="hybrid" onclick="selectMode('hybrid')">
+                        <div class="mode-icon">🔀</div>
+                        <h3>Hybrid</h3>
+                        <p>Tries local model first, falls back to cloud if unavailable. Best of both worlds.</p>
+                        <ul>
+                            <li>Cost optimization</li>
+                            <li>High availability</li>
+                            <li>Requires both Ollama + API key</li>
+                            <li>Most complex setup</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Server Configuration -->
+            <div class="wizard-step" id="step3">
+                <h2>Server Configuration</h2>
+                <div class="step-description">Configure how your WebAI Chat server will be accessed.</div>
+                <div class="form-group">
+                    <label>Host Address</label>
+                    <select id="serverHost">
+                        <option value="0.0.0.0">0.0.0.0 - All interfaces (accessible from network)</option>
+                        <option value="127.0.0.1">127.0.0.1 - Local only</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Port</label>
+                    <input type="number" id="serverPort" value="8000" min="1" max="65535">
+                </div>
+                <div class="form-group">
+                    <label>Admin Username (optional)</label>
+                    <input type="text" id="serverUsername" placeholder="Leave empty for no authentication">
+                </div>
+                <div class="form-group">
+                    <label>Admin Password (optional)</label>
+                    <div class="password-input">
+                        <input type="password" id="serverPassword" placeholder="Leave empty for no authentication">
+                        <button type="button" onclick="togglePassword('serverPassword')">👁️</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: AI Model Configuration -->
+            <div class="wizard-step" id="step4">
+                <h2>AI Model Configuration</h2>
+                <div class="step-description">Configure your AI model settings. <span id="ollamaStatus"></span></div>
+                
+                <div id="localConfig">
+                    <div class="form-group">
+                        <label>Ollama URL</label>
+                        <input type="url" id="ollamaUrl" value="http://localhost:11434">
+                        <button type="button" onclick="checkOllamaModels()" class="btn-small">Check Models</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Language Model</label>
+                        <select id="ollamaModel">
+                            <option value="qwen2.5:3b">qwen2.5:3b (Recommended, ~2GB VRAM)</option>
+                            <option value="qwen2.5:7b">qwen2.5:7b (Better quality, ~5GB VRAM)</option>
+                            <option value="llama3.2:3b">llama3.2:3b (Fast, ~2GB VRAM)</option>
+                            <option value="mistral:7b">mistral:7b (Good all-rounder, ~5GB VRAM)</option>
+                            <option value="custom">Custom model...</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="customModelGroup" style="display:none;">
+                        <label>Custom Model Name</label>
+                        <input type="text" id="customModel" placeholder="e.g., my-custom-model:latest">
+                    </div>
+                    <div class="form-group">
+                        <label>Embedding Model</label>
+                        <select id="embeddingModel">
+                            <option value="all-MiniLM-L6-v2">all-MiniLM-L6-v2 (Default, fast)</option>
+                            <option value="nomic-ai/nomic-embed-text-v1">nomic-ai/nomic-embed-text-v1 (Higher quality)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="cloudConfig" style="display:none;">
+                    <div class="form-group">
+                        <label>Cloud Provider</label>
+                        <select id="cloudProvider" onchange="updateCloudModels()">
+                            <option value="openai">OpenAI</option>
+                            <option value="anthropic">Anthropic (Claude)</option>
+                            <option value="azure">Azure OpenAI</option>
+                            <option value="google">Google (Gemini)</option>
+                            <option value="groq">Groq</option>
+                            <option value="together">Together AI</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Model</label>
+                        <select id="cloudModel">
+                            <option value="gpt-4o-mini">gpt-4o-mini (Recommended)</option>
+                            <option value="gpt-4o">gpt-4o (Better quality)</option>
+                            <option value="gpt-4-turbo">gpt-4-turbo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <div class="password-input">
+                            <input type="password" id="cloudApiKey" placeholder="sk-...">
+                            <button type="button" onclick="togglePassword('cloudApiKey')">👁️</button>
+                        </div>
+                    </div>
+                    <div class="form-group" id="azureBaseUrlGroup" style="display:none;">
+                        <label>Azure Base URL</label>
+                        <input type="url" id="cloudBaseUrl" placeholder="https://your-resource.openai.azure.com/">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Chat Settings -->
+            <div class="wizard-step" id="step5">
+                <h2>Chat Settings</h2>
+                <div class="step-description">Configure how the AI responds to user questions.</div>
+                <div class="form-group">
+                    <label>System Prompt</label>
+                    <textarea id="systemPrompt" rows="6">You are WebAI Chat, a helpful assistant for [Company]. Answer ONLY from the provided documents. DO NOT generate stories, creative content, or any information not found in the provided documents. DO NOT make up answers, DO NOT hallucinate, DO NOT use general knowledge. If the answer is not in the provided documents, reply EXACTLY with: 'I don't have that information in the provided documents.'</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Max Response Tokens</label>
+                    <input type="number" id="maxTokens" value="1000" min="100" max="8000">
+                </div>
+                <div class="form-group">
+                    <label>Retrieval Chunks (top-k)</label>
+                    <input type="number" id="topK" value="5" min="1" max="20">
+                </div>
+            </div>
+
+            <!-- Step 6: Crawler Settings -->
+            <div class="wizard-step" id="step6">
+                <h2>Crawler Settings</h2>
+                <div class="step-description">Configure the website crawler behavior.</div>
+                <div class="form-group">
+                    <label>Rate Limit (seconds between requests)</label>
+                    <input type="number" id="rateLimit" value="1.0" min="0.1" max="10" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>URL Patterns to Skip (comma-separated)</label>
+                    <input type="text" id="skipPatterns" value="/login, /admin, /contact, /careers">
+                </div>
+            </div>
+
+            <!-- Step 7: Widget Customization -->
+            <div class="wizard-step" id="step7">
+                <h2>Widget Customization</h2>
+                <div class="step-description">Customize the chat widget appearance.</div>
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input type="text" id="widgetCompanyName" placeholder="Your Company Name">
+                </div>
+                <div class="form-group">
+                    <label>Greeting Message</label>
+                    <input type="text" id="widgetGreeting" value="Hi! How can I help you?">
+                </div>
+                <div class="form-group">
+                    <label>Primary Color</label>
+                    <input type="color" id="widgetColor" value="#1a73e8">
+                </div>
+                <div class="form-group">
+                    <label>Widget Position</label>
+                    <select id="widgetPosition">
+                        <option value="bottom-right">Bottom Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="top-right">Top Right</option>
+                        <option value="top-left">Top Left</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Logo URL (optional)</label>
+                    <input type="url" id="widgetLogo" placeholder="https://example.com/logo.png">
+                </div>
+                <div class="form-group">
+                    <label>Quick Replies (comma-separated)</label>
+                    <input type="text" id="quickReplies" value="What services do you offer?, Contact information, Pricing, FAQ">
+                </div>
+            </div>
+
+            <!-- Step 8: Deployment Target -->
+            <div class="wizard-step" id="step8">
+                <h2>Deployment Target</h2>
+                <div class="step-description">Choose your deployment target to generate configuration files.</div>
+                <div class="deploy-options" id="deployOptions">
+                    <label class="deploy-option">
+                        <input type="checkbox" value="docker" checked>
+                        <span>Docker (Dockerfile, docker-compose.yml)</span>
+                    </label>
+                    <label class="deploy-option">
+                        <input type="checkbox" value="systemd">
+                        <span>Linux systemd service</span>
+                    </label>
+                    <label class="deploy-option">
+                        <input type="checkbox" value="windows">
+                        <span>Windows startup scripts</span>
+                    </label>
+                    <label class="deploy-option">
+                        <input type="checkbox" value="heroku">
+                        <span>Heroku</span>
+                    </label>
+                    <label class="deploy-option">
+                        <input type="checkbox" value="railway">
+                        <span>Railway</span>
+                    </label>
+                    <label class="deploy-option">
+                        <input type="checkbox" value="render">
+                        <span>Render</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Step 9: Website Injection -->
+            <div class="wizard-step" id="step9">
+                <h2>Website Injection</h2>
+                <div class="step-description">Get the code to embed the chat widget on your website.</div>
+                <div class="form-group">
+                    <label>API Base URL</label>
+                    <input type="url" id="apiBase" value="http://localhost:8000/">
+                </div>
+                <div class="form-group">
+                    <label>Page Title (for custom HTML template)</label>
+                    <input type="text" id="pageTitle" value="My Website">
+                </div>
+                <div class="form-group">
+                    <label>Snippet Format</label>
+                    <select id="snippetFormat" onchange="updateSnippets()">
+                        <option value="widget">Widget Only</option>
+                        <option value="wordpress">WordPress</option>
+                        <option value="react">React</option>
+                        <option value="vue">Vue</option>
+                        <option value="custom_html">Full HTML Page</option>
+                    </select>
+                </div>
+                <div class="code-output">
+                    <pre id="snippetOutput">Loading...</pre>
+                    <button type="button" onclick="copySnippet()" class="btn-small">Copy to Clipboard</button>
+                </div>
+            </div>
+
+            <!-- Step 10: Review & Install -->
+            <div class="wizard-step" id="step10">
+                <h2>Review & Install</h2>
+                <div class="step-description">Review your configuration and install WebAI Chat.</div>
+                <div class="config-preview">
+                    <h3>Configuration Summary</h3>
+                    <pre id="configPreview"></pre>
+                </div>
+                <div class="install-actions">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="startServer" checked>
+                        Start server after installation
+                    </label>
+                    <button type="button" onclick="runInstall()" class="btn-install" id="installBtn">
+                        Install WebAI Chat
+                    </button>
+                </div>
+                <div class="install-logs" id="installLogs" style="display:none;">
+                    <h3>Installation Log</h3>
+                    <pre id="installLogContent"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="wizard-nav">
+            <button type="button" class="btn-prev" onclick="prevStep()" id="prevBtn" style="display:none;">← Previous</button>
+            <div style="flex:1;"></div>
+            <button type="button" class="btn-next" onclick="nextStep()" id="nextBtn">Next →</button>
+        </div>
+    </div>
+
+    <script src="/static/wizard.js"></script>
+</body>
+</html>

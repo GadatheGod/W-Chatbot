@@ -1,0 +1,61 @@
+server:
+  host: "0.0.0.0"
+  port: 8000
+  username: ""
+  password: ""
+
+# DEPLOYMENT MODES:
+#   local  - Uses Ollama only (requires GPU server with Ollama installed)
+#   cloud  - Uses cloud API only (OpenAI, Anthropic, etc. via LiteLLM)
+#   hybrid - Tries Ollama first, falls back to cloud if unavailable
+chat:
+  mode: "local"
+  system_prompt: "You are WebAI Chat, a helpful assistant for [Company]. Answer only from the provided documents. If you don't know the answer, say 'I don't have that information in the provided documents.'"
+  max_tokens: 1000
+  top_k: 5
+
+# Ollama settings (used in local and hybrid modes)
+ollama:
+  url: "http://localhost:11434"
+  model: "qwen2.5:3b"
+  embedding_model: "all-MiniLM-L6-v2"
+
+# Cloud API settings (used in cloud and hybrid modes)
+# Supported providers: openai, anthropic, azure, google, together, groq, etc.
+cloud:
+  provider: "openai"
+  model: "gpt-4o-mini"
+  api_key: ""
+  base_url: ""
+
+crawler:
+  rate_limit: 1.0
+  skip_patterns:
+    - "/login"
+    - "/admin"
+    - "/contact"
+    - "/careers"
+
+widget:
+  position: "bottom-right"
+  color: "#1a73e8"
+  logo: ""
+  greeting: "Hi! How can I help you?"
+  theme: "blue"
+  company_name: ""
+  button_shape: "circle"
+  button_size: "medium"
+  show_quick_replies: true
+  quick_replies:
+    - "What services do you offer?"
+    - "Contact information"
+    - "Pricing"
+    - "FAQ"
+  show_emoji_picker: true
+  show_source_citations: true
+  typing_animation: "dots"
+  avatar_style: "robot"
+  unread_count: true
+
+logging:
+  level: "INFO"

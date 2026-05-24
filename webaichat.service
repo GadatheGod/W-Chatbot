@@ -1,0 +1,15 @@
+[Unit]
+Description=WebAI Chat Server
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/WebAI-Chat
+ExecStart=/opt/WebAI-Chat/venv/bin/python -m webaichat serve --port 13700
+Restart=always
+RestartSec=5
+Environment="PATH=/opt/WebAI-Chat/venv/bin:/usr/bin"
+
+[Install]
+WantedBy=multi-user.target

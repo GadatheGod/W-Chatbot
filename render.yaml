@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: webaichat
+    env: python
+    buildCommand: pip install -e .
+    startCommand: python -m webaichat serve --port 13700
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0

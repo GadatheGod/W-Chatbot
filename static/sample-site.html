@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAI Chat | Intelligent Website Assistant</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fff; color: #333; line-height: 1.7; }
+
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: rgba(255,255,255,0.97);
+            padding: 16px 48px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .navbar .logo {
+            font-size: 28px; font-weight: 900; color: #1a73e8;
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+        .navbar .logo span { background: linear-gradient(135deg, #1a73e8, #4fc3f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .navbar .nav-links { display: flex; gap: 32px; align-items: center; }
+        .navbar .nav-links a { color: #444; text-decoration: none; font-size: 16px; font-weight: 600; transition: color 0.2s; }
+        .navbar .nav-links a:hover { color: #1a73e8; }
+        .navbar .nav-links .btn-nav {
+            background: linear-gradient(135deg, #1a73e8, #4fc3f7);
+            color: white !important; padding: 12px 28px; border-radius: 12px;
+            font-weight: 700; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .navbar .nav-links .btn-nav:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(26,115,232,0.3); }
+
+        .hero {
+            background: linear-gradient(135deg, #0f47a3 0%, #1a73e8 40%, #4fc3f7 100%);
+            color: white; padding: 180px 48px 120px; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 70%, rgba(79,195,247,0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 30%, rgba(255,255,255,0.05) 0%, transparent 50%);
+        }
+        .hero h1 { font-size: 64px; margin-bottom: 24px; font-weight: 900; position: relative; line-height: 1.15; letter-spacing: -1px; }
+        .hero p { font-size: 24px; opacity: 0.92; max-width: 780px; margin: 0 auto 48px; position: relative; line-height: 1.7; }
+        .hero-badges { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; position: relative; }
+        .hero-badge {
+            background: rgba(255,255,255,0.12); backdrop-filter: blur(12px);
+            padding: 16px 32px; border-radius: 60px; font-size: 16px; font-weight: 700;
+            display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.2s, background 0.2s;
+        }
+        .hero-badge:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .hero-badge .badge-icon { font-size: 22px; }
+        .hero-cta { margin-top: 48px; position: relative; }
+        .hero-cta a {
+            display: inline-block; background: white; color: #1a73e8;
+            padding: 18px 48px; border-radius: 14px; font-size: 20px; font-weight: 800;
+            text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .hero-cta a:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+
+        .section { padding: 100px 48px; }
+        .section-dark { background: #f8fafc; }
+        .section-header { text-align: center; margin-bottom: 72px; }
+        .section-header h2 { font-size: 44px; font-weight: 900; margin-bottom: 20px; color: #1a1a2e; letter-spacing: -0.5px; }
+        .section-header p { font-size: 20px; color: #666; max-width: 650px; margin: 0 auto; }
+
+        .problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; max-width: 1280px; margin: 0 auto; }
+        .problem-card {
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); border-left: 5px solid #e74c3c;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .problem-card:hover { transform: translateY(-6px); box-shadow: 0 12px 36px rgba(0,0,0,0.12); }
+        .problem-card .icon { font-size: 40px; margin-bottom: 20px; }
+        .problem-card h3 { font-size: 20px; margin-bottom: 10px; color: #333; }
+        .problem-card p { color: #666; font-size: 16px; }
+
+        .stat-callout {
+            max-width: 1000px; margin: 60px auto 0; background: linear-gradient(135deg, #1a73e8, #4fc3f7);
+            padding: 52px; border-radius: 24px; text-align: center; color: white;
+        }
+        .stat-callout p { font-size: 26px; font-weight: 700; line-height: 1.6; }
+
+        .steps { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; max-width: 1100px; margin: 0 auto; }
+        .step {
+            text-align: center; flex: 1; min-width: 220px; max-width: 300px;
+            position: relative; padding: 48px 24px;
+        }
+        .step-number {
+            width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 28px;
+            background: linear-gradient(135deg, #1a73e8, #4fc3f7);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; font-weight: 900; color: white;
+            box-shadow: 0 10px 30px rgba(26,115,232,0.3);
+        }
+        .step h3 { font-size: 24px; margin-bottom: 14px; color: #333; }
+        .step p { color: #666; font-size: 16px; }
+        .step-arrow { display: flex; align-items: center; color: #1a73e8; font-size: 36px; }
+
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 32px; max-width: 1280px; margin: 0 auto; }
+        .feature-card {
+            background: white; padding: 44px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-top: 4px solid transparent;
+        }
+        .feature-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); border-top-color: #1a73e8; }
+        .feature-card .icon { font-size: 48px; margin-bottom: 24px; }
+        .feature-card h3 { font-size: 22px; margin-bottom: 14px; color: #333; }
+        .feature-card .what { color: #1a73e8; font-weight: 700; font-size: 16px; margin-bottom: 10px; }
+        .feature-card p { color: #666; font-size: 16px; line-height: 1.7; }
+        .feature-card .benefit {
+            margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee;
+            font-size: 15px; color: #27ae60; font-weight: 700;
+        }
+
+        .deploy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; max-width: 1200px; margin: 0 auto; }
+        .deploy-card {
+            background: white; padding: 44px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .deploy-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); }
+        .deploy-card .icon { font-size: 56px; margin-bottom: 24px; }
+        .deploy-card h3 { font-size: 24px; margin-bottom: 14px; color: #333; }
+        .deploy-card p { color: #666; font-size: 16px; margin-bottom: 16px; }
+        .deploy-card .tag {
+            display: inline-block; background: #e8f4fd; color: #1a73e8;
+            padding: 8px 20px; border-radius: 24px; font-size: 14px; font-weight: 700;
+        }
+
+        .advantages-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; max-width: 1200px; margin: 0 auto; }
+        .advantage-card {
+            background: linear-gradient(135deg, #1a73e8, #4fc3f7);
+            padding: 44px; border-radius: 20px; color: white; text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .advantage-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(26,115,232,0.3); }
+        .advantage-card .icon { font-size: 56px; margin-bottom: 20px; }
+        .advantage-card h3 { font-size: 22px; margin-bottom: 14px; }
+        .advantage-card p { font-size: 16px; opacity: 0.92; line-height: 1.7; }
+
+        .usecases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; max-width: 1280px; margin: 0 auto; }
+        .usecase-card {
+            background: white; padding: 36px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            display: flex; gap: 24px; align-items: flex-start;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .usecase-card:hover { transform: translateY(-6px); box-shadow: 0 12px 36px rgba(0,0,0,0.12); }
+        .usecase-card .icon { font-size: 44px; flex-shrink: 0; }
+        .usecase-card h3 { font-size: 18px; margin-bottom: 10px; color: #333; }
+        .usecase-card p { color: #666; font-size: 15px; line-height: 1.6; }
+
+        .deliverables { max-width: 900px; margin: 0 auto; }
+        .deliverable-item {
+            display: flex; gap: 20px; align-items: flex-start;
+            padding: 24px 0; border-bottom: 2px solid #eee;
+        }
+        .deliverable-item:last-child { border-bottom: none; }
+        .deliverable-item .check { font-size: 28px; flex-shrink: 0; color: #27ae60; }
+        .deliverable-item p { color: #555; font-size: 17px; line-height: 1.7; }
+
+        .cta-section {
+            background: linear-gradient(135deg, #0f47a3, #1a73e8, #4fc3f7);
+            padding: 120px 48px; text-align: center; color: white;
+        }
+        .cta-section h2 { font-size: 52px; margin-bottom: 20px; font-weight: 900; letter-spacing: -0.5px; }
+        .cta-section p { font-size: 22px; opacity: 0.92; margin-bottom: 40px; }
+        .cta-section .btn-cta {
+            display: inline-block; background: white; color: #1a73e8;
+            padding: 20px 52px; border-radius: 16px; font-size: 22px; font-weight: 800;
+            text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .cta-section .btn-cta:hover { transform: translateY(-3px); box-shadow: 0 10px 35px rgba(0,0,0,0.25); }
+        .cta-section .contact-line { margin-top: 40px; font-size: 20px; opacity: 0.95; font-weight: 600; }
+        .cta-section .contact-line a { color: #4fc3f7; text-decoration: none; font-weight: 700; }
+        .cta-section .contact-line a:hover { text-decoration: underline; }
+        .cta-section .contact-big {
+            margin-top: 24px; font-size: 26px; opacity: 1; font-weight: 900;
+            background: rgba(255,255,255,0.15); padding: 24px 40px; border-radius: 20px;
+            border: 3px solid rgba(255,255,255,0.3); display: inline-block;
+        }
+
+        .footer {
+            background: #0f0f1a; color: #888; padding: 48px; text-align: center; font-size: 16px;
+        }
+        .footer a { color: #4fc3f7; text-decoration: none; font-weight: 600; }
+
+        .tech-stack {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px; max-width: 1100px; margin: 0 auto; text-align: center;
+        }
+        .tech-item {
+            background: white; padding: 32px; border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            transition: transform 0.2s;
+        }
+        .tech-item:hover { transform: translateY(-4px); }
+        .tech-item .icon { font-size: 40px; margin-bottom: 16px; }
+        .tech-item h4 { font-size: 16px; color: #333; margin-bottom: 6px; }
+        .tech-item p { font-size: 14px; color: #888; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 36px; }
+            .hero p { font-size: 18px; }
+            .section { padding: 72px 24px; }
+            .section-header h2 { font-size: 32px; }
+            .navbar { padding: 14px 24px; }
+            .navbar .nav-links { gap: 18px; }
+            .navbar .nav-links a:not(.btn-nav) { display: none; }
+            .steps { flex-direction: column; align-items: center; }
+            .step-arrow { transform: rotate(90deg); margin: 20px 0; }
+            .stat-callout p { font-size: 20px; }
+            .cta-section h2 { font-size: 32px; }
+            .cta-section .contact-big { font-size: 16px; padding: 16px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <span>WebAI Chat</span>
+        </a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#use-cases">Use Cases</a>
+            <a href="#tech">Tech Stack</a>
+            <a href="#contact" class="btn-nav">Get Demo</a>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <h1>Intelligent Website Assistant<br>for Growing Businesses</h1>
+        <p>Turn your website into a 24/7 intelligent sales & support assistant — powered by your own content, running on your own infrastructure.</p>
+        <div class="hero-badges">
+            <div class="hero-badge"><span class="badge-icon">🕐</span> 24/7 Always Online</div>
+            <div class="hero-badge"><span class="badge-icon">🧠</span> RAG Context-Aware AI</div>
+            <div class="hero-badge"><span class="badge-icon">🔒</span> Local — Your Data, Your Privacy</div>
+            <div class="hero-badge"><span class="badge-icon">⚡</span> 1-Tag Easy Embed</div>
+        </div>
+        <div class="hero-cta">
+            <a href="#contact">Schedule a Free Demo</a>
+        </div>
+    </section>
+
+    <section class="section section-dark" id="problem">
+        <div class="section-header">
+            <h2>The Problem We Solve</h2>
+            <p>Why your website is losing potential customers every day</p>
+        </div>
+        <div class="problem-grid">
+            <div class="problem-card">
+                <div class="icon">🔍</div>
+                <h3>Visitors Can't Find Answers Quickly</h3>
+                <p>High bounce rates — leads gone in seconds when users can't find what they need.</p>
+            </div>
+            <div class="problem-card">
+                <div class="icon">💬</div>
+                <h3>Support Team Handles Repetitive Questions</h3>
+                <p>Costs time & money; delays frustrate prospects and damage your brand.</p>
+            </div>
+            <div class="problem-card">
+                <div class="icon">📄</div>
+                <h3>Website Knowledge Is Static, Not Interactive</h3>
+                <p>Visitors leave without engaging — no conversion, no conversation.</p>
+            </div>
+            <div class="problem-card">
+                <div class="icon">🌍</div>
+                <h3>No 24/7 Coverage for Global Audiences</h3>
+                <p>International prospects go unanswered after business hours.</p>
+            </div>
+        </div>
+        <div class="stat-callout">
+            <p>"53% of website visitors abandon a site if they cannot find information quickly. An intelligent chat assistant changes this immediately."</p>
+        </div>
+    </section>
+
+    <section class="section" id="how-it-works">
+        <div class="section-header">
+            <h2>How It Works — 3 Simple Steps</h2>
+            <p>From zero to live chatbot in under 30 minutes</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Crawl Website</h3>
+                <p>WebAI Chat crawls all pages of your website, building a comprehensive knowledge base automatically.</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Index + Embed</h3>
+                <p>Content is converted to semantic vectors and embedded into a searchable knowledge index.</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Chat + Convert</h3>
+                <p>Visitors get instant, accurate answers via the embedded chat widget — converting them into leads.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-dark" id="features">
+        <div class="section-header">
+            <h2>Key Features & Capabilities</h2>
+            <p>Everything you need in one integrated platform</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">🧠</div>
+                <h3>AI RAG Engine</h3>
+                <div class="what">What It Does</div>
+                <p>Answers grounded in your own website content — no hallucinations.</p>
+                <div class="benefit">✓ Accurate, trustworthy responses</div>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🕷️</div>
+                <h3>Web Crawler</h3>
+                <div class="what">What It Does</div>
+                <p>Crawls all pages, skips login/admin, builds live semantic knowledge base.</p>
+                <div class="benefit">✓ Zero manual data entry</div>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📊</div>
+                <h3>Admin Dashboard</h3>
+                <div class="what">What It Does</div>
+                <p>Crawl status, conversation logs, export JSON/CSV — full visibility.</p>
+                <div class="benefit">✓ Complete control at a glance</div>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🔄</div>
+                <h3>Flexible LLM</h3>
+                <div class="what">What It Does</div>
+                <p>Ollama (local) or OpenAI/Azure — switch via YAML config only.</p>
+                <div class="benefit">✓ No vendor lock-in ever</div>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📌</div>
+                <h3>Embed Widget</h3>
+                <div class="what">What It Does</div>
+                <p>One &lt;script&gt; tag. Works on any site — React, plain HTML, WordPress.</p>
+                <div class="benefit">✓ Live in under 60 seconds</div>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📈</div>
+                <h3>Analytics</h3>
+                <div class="what">What It Does</div>
+                <p>Every query and response logged; search, filter, export.</p>
+                <div class="benefit">✓ Know what visitors really want</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="deploy">
+        <div class="section-header">
+            <h2>Flexible Deployment Options</h2>
+            <p>Local, Cloud, or Hybrid — configured in seconds</p>
+        </div>
+        <div class="deploy-grid">
+            <div class="deploy-card">
+                <div class="icon">🏠</div>
+                <h3>Local (Ollama)</h3>
+                <p>Runs 100% on-premise. No data leaves your server. Supports Qwen2, Llama3, Mistral.</p>
+                <div class="tag">Data-Sensitive Businesses</div>
+            </div>
+            <div class="deploy-card">
+                <div class="icon">☁️</div>
+                <h3>Cloud API</h3>
+                <p>Connects to OpenAI or Azure OpenAI. Add your API key in Settings — done.</p>
+                <div class="tag">GPT-4o Quality</div>
+            </div>
+            <div class="deploy-card">
+                <div class="icon">🔀</div>
+                <h3>Hybrid</h3>
+                <p>Local for general queries, cloud for complex reasoning — fully configurable via YAML.</p>
+                <div class="tag">Cost-Optimised</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-dark" id="why">
+        <div class="section-header">
+            <h2>Why WebAI Chat?</h2>
+            <p>The competitive advantage</p>
+        </div>
+        <div class="advantages-grid">
+            <div class="advantage-card">
+                <div class="icon">🔒</div>
+                <h3>Data Privacy First</h3>
+                <p>Knowledge base stays on your server. No third-party scraping. Critical for B2B, legal, healthcare, finance.</p>
+            </div>
+            <div class="advantage-card">
+                <div class="icon">🔓</div>
+                <h3>No Vendor Lock-in</h3>
+                <p>Swap LLMs, embedding models, or cloud providers via one YAML file. You own your stack entirely.</p>
+            </div>
+            <div class="advantage-card">
+                <div class="icon">⚡</div>
+                <h3>Instant Setup</h3>
+                <p>Zero to live chatbot in under 30 minutes. No ML pipeline, no data science team needed.</p>
+            </div>
+            <div class="advantage-card">
+                <div class="icon">📈</div>
+                <h3>Scales With You</h3>
+                <p>1 page or 10,000 pages. 1 query/day or 10,000. Same system, consistent performance.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="use-cases">
+        <div class="section-header">
+            <h2>Ideal Use Cases</h2>
+            <p>Built for industries that need intelligent customer engagement</p>
+        </div>
+        <div class="usecases-grid">
+            <div class="usecase-card">
+                <div class="icon">🏢</div>
+                <div>
+                    <h3>B2B Services & Consulting</h3>
+                    <p>Answers RFQ and service queries 24/7; qualifies leads before human follow-up.</p>
+                </div>
+            </div>
+            <div class="usecase-card">
+                <div class="icon">🛒</div>
+                <div>
+                    <h3>E-Commerce & Retail</h3>
+                    <p>Product Q&A, return policies, shipping info — without human agents.</p>
+                </div>
+            </div>
+            <div class="usecase-card">
+                <div class="icon">⚙️</div>
+                <div>
+                    <h3>CAD / Engineering Services</h3>
+                    <p>Explains service offerings, past project scope, technical capabilities to prospects.</p>
+                </div>
+            </div>
+            <div class="usecase-card">
+                <div class="icon">🏥</div>
+                <div>
+                    <h3>Healthcare & Clinics</h3>
+                    <p>FAQs about services, timing, procedures — local model keeps data private.</p>
+                </div>
+            </div>
+            <div class="usecase-card">
+                <div class="icon">💻</div>
+                <div>
+                    <h3>SaaS & Tech Companies</h3>
+                    <p>Documentation assistant + support bot powered by your own knowledge base.</p>
+                </div>
+            </div>
+            <div class="usecase-card">
+                <div class="icon">🏭</div>
+                <div>
+                    <h3>Manufacturing & Industrial</h3>
+                    <p>Specs, lead times, and product data sheets on demand.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-dark" id="tech">
+        <div class="section-header">
+            <h2>Technical Stack</h2>
+            <p>Built on proven, production-ready open-source components</p>
+        </div>
+        <div class="tech-stack">
+            <div class="tech-item">
+                <div class="icon">🐍</div>
+                <h4>Python / FastAPI</h4>
+                <p>Backend & REST API</p>
+            </div>
+            <div class="tech-item">
+                <div class="icon">🗄️</div>
+                <h4>ChromaDB</h4>
+                <p>Vector Database</p>
+            </div>
+            <div class="tech-item">
+                <div class="icon">📐</div>
+                <h4>nomic-embed-text</h4>
+                <p>Embedding Model</p>
+            </div>
+            <div class="tech-item">
+                <div class="icon">🤖</div>
+                <h4>Ollama / OpenAI</h4>
+                <p>LLM Inference</p>
+            </div>
+            <div class="tech-item">
+                <div class="icon">💬</div>
+                <h4>Vanilla JS + CSS</h4>
+                <p>Chat Widget</p>
+            </div>
+            <div class="tech-item">
+                <div class="icon">⚛️</div>
+                <h4>React SPA</h4>
+                <p>Admin Panel</p>
+            </div>
+            <div class="tech-item">
+                <div class="icon">📝</div>
+                <h4>YAML</h4>
+                <p>Configuration</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="deliverables">
+        <div class="section-header">
+            <h2>What You Get</h2>
+            <p>Complete package for immediate deployment</p>
+        </div>
+        <div class="deliverables">
+            <div class="deliverable-item">
+                <div class="check">✅</div>
+                <p><strong>Complete source code</strong> — Python backend, React admin panel, embeddable JS widget</p>
+            </div>
+            <div class="deliverable-item">
+                <div class="check">✅</div>
+                <p><strong>One-command Docker deployment</strong> + step-by-step manual setup guide</p>
+            </div>
+            <div class="deliverable-item">
+                <div class="check">✅</div>
+                <p><strong>Admin panel</strong> with dashboard, conversation logs, and JSON/CSV export</p>
+            </div>
+            <div class="deliverable-item">
+                <div class="check">✅</div>
+                <p><strong>Embeddable chat widget</strong> with customisable branding and quick-reply buttons</p>
+            </div>
+            <div class="deliverable-item">
+                <div class="check">✅</div>
+                <p><strong>YAML-based config</strong> — swap LLMs, change prompts, adjust crawl settings anytime</p>
+            </div>
+            <div class="deliverable-item">
+                <div class="check">✅</div>
+                <p><strong>30-day post-deployment support</strong> window</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="contact">
+        <h2>Ready to Transform Your Website?</h2>
+        <p>Let's schedule a 30-minute demo — see it live on your own website content.</p>
+        <a href="mailto:praveen_balu2000@yahoo.com" class="btn-cta">Get Started Today</a>
+        <div class="contact-big">
+            Contact: Praveen | praveen_balu2000@yahoo.com | Presented by: WebAI Chat
+        </div>
+        <div class="contact-line" style="margin-top: 24px;">
+            Customisation available for branding, languages, enterprise integrations
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2026 WebAI Chat — Intelligent Website Assistant. All Rights Reserved.</p>
+    </footer>
+
+    <!-- WebAI Chat Widget -->
+    <script>
+        window.WEBAI_CHAT_CONFIG = { apiBase: "http://localhost:13700/" };
+    </script>
+    <script src="http://localhost:13700/static/widget.js"></script>
+</body>
+</html>
