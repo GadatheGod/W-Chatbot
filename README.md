@@ -26,13 +26,25 @@ AI-powered chatbot that answers website questions using a local SLM (Small Langu
 
 ## Screenshots
 
-| Setup Wizard | Chat Widget | Admin Panel |
-|---|---|---|
-| ![Setup Wizard](screenshots/wizard.png) | ![Chat Widget](screenshots/widget.png) | ![Admin Panel](screenshots/admin.png) |
+### Chat Widget & Interface
 
-| Chat Interface | Widget Config | System Health |
+| Chat Widget | Chat Streaming | Chat Response |
 |---|---|---|
-| ![Chat Interface](screenshots/chat.png) | ![Widget Config](screenshots/widget-config.png) | ![System Health](screenshots/health.png) |
+| ![Chat Widget](screenshots/widget.png) | ![Chat Streaming](screenshots/chat-stream.png) | ![Chat Response](screenshots/chat-response.png) |
+
+| Chat with Citations | Login Page | Admin Panel |
+|---|---|---|
+| ![Chat Citations](screenshots/chat-citations.png) | ![Login Page](screenshots/login.png) | ![Admin Panel](screenshots/admin.png) |
+
+### Admin Features
+
+| Conversations | Crawl Page | Settings |
+|---|---|---|
+| ![Conversations](screenshots/conversations.png) | ![Crawl Page](screenshots/crawl.png) | ![Settings](screenshots/settings.png) |
+
+| Widget Configuration |
+|---|
+| ![Widget Config](screenshots/widget-config.png) |
 
 ## Quick Start
 
